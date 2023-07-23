@@ -26,8 +26,10 @@ jobs:
           distribution: 'adopt'
           cache: maven
 
-      - name: Check simulator
-        run: xcrun simctl list available
+      - name: Setup appium
+        run: |
+          which npm
+          npm install -g appium
 
       - name: Build with Maven
         run: mvn clean test
