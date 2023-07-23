@@ -8,6 +8,7 @@ import io.appium.java_client.ios.options.XCUITestOptions;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Timeout;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,13 +23,18 @@ public abstract class AbstractTest {
     public static AppiumDriver driver;
 
     @BeforeAll
+    @Timeout(20)
     public static void setUp() throws URISyntaxException, MalformedURLException {
         String appPath = System.getenv("TEST_APP_PATH");
         String cwd = System.getProperty("user.dir");
         Path path = Paths.get(cwd, appPath);
+        System.out.printf("Application Path: %s%n", path);
         if(Files.exists(path)) {
             URI uri = new URI("http://localhost:4723");
             driver = createDriver(uri, path.toString());
+            System.out.printf("Successfully create driver %s", driver.getClass().getName());
+        }else{
+            throw new RuntimeException(String.format("%s does not exist", path));
         }
     }
 
@@ -43,12 +49,14 @@ public abstract class AbstractTest {
     private static IOSDriver getIosDriver(URI appiumUri, String appPath) throws MalformedURLException {
         XCUITestOptions options = new XCUITestOptions()
                 .setApp(appPath);
+        System.out.println("Creating a new iOS Driver");
         return new IOSDriver(appiumUri.toURL(), options);
     }
 
     private static AndroidDriver getAndroidDriver(URI uri, String appPath) throws MalformedURLException {
         var options = new UiAutomator2Options()
                 .setApp(appPath);
+        System.out.println("Creating a new iOS Driver");
         return new AndroidDriver(uri.toURL(), options);
     }
 
