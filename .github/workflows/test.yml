@@ -32,7 +32,8 @@ jobs:
           npm install -g appium
           appium -v
           appium driver install xcuitest
-          appium &>/dev/null &
+          appium &> ./foo.txt &
+          lsof -i :4723
 
       - name: Setup iOS Simulator
         uses: futureware-tech/simulator-action@v2
@@ -42,3 +43,8 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean test
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: debug-logs
+          path: foo.txt

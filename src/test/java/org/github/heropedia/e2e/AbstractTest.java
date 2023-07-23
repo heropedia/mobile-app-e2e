@@ -23,14 +23,14 @@ public abstract class AbstractTest {
     public static AppiumDriver driver;
 
     @BeforeAll
-    @Timeout(20)
+    @Timeout(120)
     public static void setUp() throws URISyntaxException, MalformedURLException {
         String appPath = System.getenv("TEST_APP_PATH");
         String cwd = System.getProperty("user.dir");
         Path path = Paths.get(cwd, appPath);
         System.out.printf("Application Path: %s%n", path);
         if(Files.exists(path)) {
-            URI uri = new URI("http://localhost:4723");
+            URI uri = new URI("http://127.0.0.1:4723");
             driver = createDriver(uri, path.toString());
             System.out.printf("Successfully create driver %s", driver.getClass().getName());
         }else{
