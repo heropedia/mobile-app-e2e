@@ -26,28 +26,32 @@ jobs:
           distribution: 'adopt'
           cache: maven
 
+      - name: Install iOS Simulator
+        run: |
+          xcrun simctl create iPhone13Pro com.apple.CoreSimulator.SimDeviceType.iPhone-13-Pro com.apple.CoreSimulator.SimRuntime.iOS-16-2 > udid.txt
+          xcrun simctl boot $(cat udid.txt)
+          echo "SIMULATOR_UDID=$(cat udid.txt)" >> $GITHUB_ENV
+          echo "Booted a device with UDID $SIMULATOR_UDID"
+
       - name: Setup appium
         run: |
-          which npm
           npm install -g appium
           appium -v
           appium driver install xcuitest
-          appium &> ./foo.txt &
-          echo "Started appium"
-          head ./foo.txt
+          appium --log-timestamp --log-no-colors --log appium-log.txt &> /dev/null &
 
-      - name: Setup iOS Simulator
-        uses: futureware-tech/simulator-action@v2
-        with:
-          model: 'iPhone 14 Pro'
-          shutdown_after_job: true
+      - name: Wait for appium
+        run: |
+          until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:4723/sessions); do
+           sleep 5
+          done
 
-      - name: Build with Maven
-        run: mvn clean test
+      - name: Run E2E tests
+        run: mvn -q clean test
 
       - name: Upload Appium logs
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: debug-logs
-          path: foo.txt
+          path: appium-log.txt
