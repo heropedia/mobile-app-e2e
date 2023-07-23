@@ -30,6 +30,8 @@ jobs:
         run: |
           which npm
           npm install -g appium
+          appium -v
+          appium &>/dev/null &
 
       - name: Build with Maven
         run: mvn clean test
