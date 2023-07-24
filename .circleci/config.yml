@@ -26,7 +26,7 @@ jobs:
             brew install maven
 
       - run:
-          name: Run E2e
+          name: Run E2E
           command: |
             appium --log-timestamp --log-no-colors --log appium-log.txt &> /dev/null &
             sleep 2
@@ -35,17 +35,39 @@ jobs:
 
   android:
     machine:
-      image: android:202102-01
+      image: android:2023.07.1
     resource_class: large
     steps:
+      - checkout
       - run:
-          name: Verify adb
-          command: adb --version
-      - run:
-          name: Verify Maven
+          name: Create avd
           command: |
-            java --version
-            mvn --version
+            SYSTEM_IMAGES="system-images;android-32;google_apis;x86_64"
+            sdkmanager "$SYSTEM_IMAGES"
+            echo "no" | avdmanager --verbose create avd -n test -k "$SYSTEM_IMAGES"
+      - run:
+          name: Launch emulator
+          command: |   
+            emulator -avd test -delay-adb -verbose -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          background: true
+
+      - run:
+          name: Setup Appium
+          command: |
+            npm install -g appium
+            appium driver install uiautomator2
+      - run:
+          name: Launch Appium
+          command: |
+            appium --version
+            appium --log-timestamp --log-no-colors --log appium-log.txt
+          background: true
+      - run:
+          name: Run E2E
+          command: |
+            sleep 20
+            echo "Appium sessions $(curl http://127.0.0.1:4723/sessions)"
+            TEST_APP_PATH="./apps/mobileapp.apk" mvn -q clean test
 
 workflows:
   Run E2E Tests:
