@@ -1,14 +1,15 @@
-version: 2
+version: 2.1
+
 jobs:
-  build:
+  ios:
     macos:
-      xcode: 14.0.0
+      xcode: 14.1.0
     steps:
       - checkout
       - run:
           name: Setup Simulator
           command: |
-            xcrun simctl create iPhone14Pro com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro com.apple.CoreSimulator.SimRuntime.iOS-16-0 > deviceid.txt
+            xcrun simctl create iPhone14Pro com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro com.apple.CoreSimulator.SimRuntime.iOS-16-1 > deviceid.txt
             xcrun simctl boot $(cat deviceid.txt)
             echo "Booted a devier with ID $(cat deviceid.txt)"
       - run:
@@ -30,3 +31,8 @@ jobs:
           name: Run E2e
           command: |
             SIMULATOR_UDID=$(cat deviceid.txt) TEST_APP_PATH="./apps/mobileapp.app" mvn clean test
+
+workflows:
+  Run E2E Tests:
+    jobs:
+      - ios
