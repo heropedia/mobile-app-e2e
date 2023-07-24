@@ -31,9 +31,23 @@ jobs:
             appium --log-timestamp --log-no-colors --log appium-log.txt &> /dev/null &
             sleep 2
             echo "Appium sessions $(curl http://127.0.0.1:4723/sessions)"
-            SIMULATOR_UDID=$(cat deviceid.txt) TEST_APP_PATH="./apps/mobileapp.app" mvn clean test
+            SIMULATOR_UDID=$(cat deviceid.txt) TEST_APP_PATH="./apps/mobileapp.app" mvn -q clean test
+
+  android:
+    machine:
+      image: android:202102-01
+    resource_class: large
+    steps:
+      - run:
+          name: Verify adb
+          command: adb --version
+      - run:
+          name: Verify Maven
+          command: |
+            java --version
+            mvn --version
 
 workflows:
   Run E2E Tests:
     jobs:
-      - ios
+      - android

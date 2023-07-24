@@ -61,7 +61,9 @@ public abstract class AbstractTest {
 
     private static AndroidDriver getAndroidDriver(URI uri, String appPath) throws MalformedURLException {
         var options = new UiAutomator2Options()
+                .setIsHeadless(true)
                 .setApp(appPath);
+
         System.out.println("Creating a new Android Driver");
         return new AndroidDriver(uri.toURL(), options);
     }
