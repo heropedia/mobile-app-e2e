@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  build:
+    macos:
+      xcode: 14.0.0
+    steps:
+      - checkout
+      - run:
+          name: Setup Simulator
+          command: |
+            xcrun simctl create iPhone14Pro com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro com.apple.CoreSimulator.SimRuntime.iOS-16-0 > deviceid.txt
+            xcrun simctl boot $(cat deviceid.txt)
+            echo "Booted a devier with ID $(cat deviceid.txt)"
+      - run:
+          name: Setup Appium
+          command: |
+            npm install -g appium
+            appium -v
+            appium driver install xcuitest
+            appium --log-timestamp --log-no-colors --log appium-log.txt &> /dev/null &
+            until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:4723/sessions); do
+              sleep 5
+            done
+      - run:
+          name: Setup Maven
+          command: |
+            brew install maven
+
+      - run:
+          name: Run E2e
+          command: |
+            SIMULATOR_UDID=$(cat deviceid.txt) TEST_APP_PATH="./apps/mobileapp.app" mvn clean test

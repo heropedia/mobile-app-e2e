@@ -2,7 +2,7 @@ name: IOS E2E tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "mai" ]
 
 jobs:
   ios:
