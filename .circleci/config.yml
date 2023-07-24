@@ -20,8 +20,10 @@ jobs:
             appium driver install xcuitest
             appium --log-timestamp --log-no-colors --log appium-log.txt &> /dev/null &
             until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:4723/sessions); do
+              echo "retrying appium server status..."
               sleep 5
             done
+            echo "Appium seriver started..."
       - run:
           name: Setup Maven
           command: |
@@ -30,6 +32,7 @@ jobs:
       - run:
           name: Run E2e
           command: |
+            echo "Appium sessions $(curl http://127.0.0.1:4723/sessions)"
             SIMULATOR_UDID=$(cat deviceid.txt) TEST_APP_PATH="./apps/mobileapp.app" mvn clean test
 
 workflows:

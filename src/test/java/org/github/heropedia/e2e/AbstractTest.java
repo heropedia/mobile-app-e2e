@@ -51,7 +51,6 @@ public abstract class AbstractTest {
         XCUITestOptions options = new XCUITestOptions()
                 .setWdaStartupRetries(4)
                 .setWdaStartupRetryInterval(Duration.ofSeconds(20))
-                .setUsePrebuiltWda(true)
                 .setIsHeadless(true)
                 .setUdid(udid)
                 .setApp(appPath);
