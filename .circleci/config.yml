@@ -4,6 +4,8 @@ jobs:
   ios:
     macos:
       xcode: 14.1.0
+    environment:
+      HOMEBREW_NO_AUTO_UPDATE: 1
     steps:
       - checkout
       - run:
