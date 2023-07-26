@@ -6,13 +6,11 @@ import org.openqa.selenium.WebElement;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HomePageTests extends AbstractTest{
+public class HomePageTests extends AbstractTest {
 
     @Test
     public void shouldBeAbleToClickButton() {
-//        WebElement button = driver.findElement(AppiumBy.id("colour-changing-button"));
-//        assertTrue(button.getText().equalsIgnoreCase("PRESS TO PAINT IT RED"));
-//        button.click();
-//        assertTrue(button.getText().equalsIgnoreCase("PRESS TO PAINT IT BLUE"));
+        WebElement button = driver.findElement(AppiumBy.id("com.bugdiver.mobileapp:id/colourChangingButton"));
+        button.click();
     }
 }

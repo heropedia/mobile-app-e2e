@@ -72,4 +72,5 @@ jobs:
 workflows:
   Run E2E Tests:
     jobs:
+      - ios
       - android
