@@ -1,0 +1,76 @@
+version: 2.1
+
+jobs:
+  ios:
+    macos:
+      xcode: 14.1.0
+    environment:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - checkout
+      - run:
+          name: Setup Simulator
+          command: |
+            xcrun simctl create iPhone14Pro com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro com.apple.CoreSimulator.SimRuntime.iOS-16-1 > deviceid.txt
+            xcrun simctl boot $(cat deviceid.txt)
+            echo "Booted a devier with ID $(cat deviceid.txt)"
+      - run:
+          name: Setup Appium
+          command: |
+            npm install -g appium
+            appium -v
+            appium driver install xcuitest
+      - run:
+          name: Setup Maven
+          command: |
+            brew install maven
+
+      - run:
+          name: Run E2E
+          command: |
+            appium --log-timestamp --log-no-colors --log appium-log.txt &> /dev/null &
+            sleep 2
+            echo "Appium sessions $(curl http://127.0.0.1:4723/sessions)"
+            SIMULATOR_UDID=$(cat deviceid.txt) TEST_APP_PATH="./apps/mobileapp.app" mvn -q clean test
+
+  android:
+    machine:
+      image: android:2023.07.1
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Create avd
+          command: |
+            SYSTEM_IMAGES="system-images;android-32;google_apis;x86_64"
+            sdkmanager "$SYSTEM_IMAGES"
+            echo "no" | avdmanager --verbose create avd -n test -k "$SYSTEM_IMAGES"
+      - run:
+          name: Launch emulator
+          command: |   
+            emulator -avd test -delay-adb -verbose -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          background: true
+
+      - run:
+          name: Setup Appium
+          command: |
+            npm install -g appium
+            appium driver install uiautomator2
+      - run:
+          name: Launch Appium
+          command: |
+            appium --version
+            appium --log-timestamp --log-no-colors --log appium-log.txt
+          background: true
+      - run:
+          name: Run E2E
+          command: |
+            sleep 20
+            echo "Appium sessions $(curl http://127.0.0.1:4723/sessions)"
+            TEST_APP_PATH="./apps/mobileapp.apk" mvn -q clean test
+
+workflows:
+  Run E2E Tests:
+    jobs:
+      - ios
+      - android
